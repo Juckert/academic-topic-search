@@ -1,0 +1,15 @@
+{
+  "path": "data/topics.json",
+  "id_field": "id",
+  "title_field": "title",
+  "annotation_field": "annotation",
+  "include_annotation": false,
+  "record_filter": {},
+  "metadata_fields": {
+    "year": "year",
+    "department": "department",
+    "program": "program",
+    "work_type": "work_type",
+    "source_url": "source_url"
+  }
+}
