@@ -1,0 +1,11 @@
+{
+  "corpus_config": "configs/corpus-example.json",
+  "method": "dense",
+  "bm25_config": "configs/bm25.json",
+  "dense_config": "configs/dense-e5.json",
+  "rrf_config": "configs/hybrid-rrf.json",
+  "reranker_config": null,
+  "candidate_limit": 50,
+  "top_k": 5,
+  "threshold": null
+}

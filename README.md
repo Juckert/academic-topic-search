@@ -65,4 +65,14 @@ python -m baseline.run --method dense --query "Поиск похожих тем"
 
 Параметры RRF находятся в `configs/hybrid-rrf.json`; они пока не подобраны на данных.
 
-Эта ветка: **hybrid (BM25 + E5 + RRF)**.
+## Общий pipeline и reranker
+
+[Инструкции для Python API, CLI и CUDA](docs/LOCAL_RUN.md).
+
+Профиль `configs/search-rerank.json` добавляет cross-encoder к гибридному поиску.
+
+Для оценки полного pipeline на будущих размеченных данных:
+`python -m baseline.evaluate --search-config configs/search-rerank.json --queries data/queries.json`.
+Размер `candidate_limit` профиля должен быть не меньше максимального cutoff.
+
+Эта версия: **reranker / main — полный код**.

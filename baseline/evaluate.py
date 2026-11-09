@@ -10,10 +10,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--method", choices=METHODS, default=METHODS[-1])
     parser.add_argument("--corpus-config", default="configs/corpus-example.json")
+    parser.add_argument("--search-config", help="Full pipeline profile, including optional reranker; overrides method/corpus-config")
     parser.add_argument("--queries", required=True)
     parser.add_argument("--cutoffs", type=int, nargs="+", default=[1,5,10])
     parser.add_argument("--output", help="Optional local JSON output; results/ is ignored by Git")
     args = parser.parse_args()
+    if args.search_config:
+        profile = read_json(ROOT / args.search_config)
+        args.corpus_config = profile["corpus_config"]
+        args.method = profile["method"]
     if not args.cutoffs or min(args.cutoffs) < 1:
         parser.error("cutoffs must be positive")
     queries = read_json(ROOT / args.queries)
@@ -23,12 +28,19 @@ def main():
         raise ValueError("Nonempty queries with unique query_id required")
     if any(q["expected_match_id"] not in ids or not isinstance(q["query"],str) or not q["query"].strip() for q in queries):
         raise ValueError("Each query needs nonempty text and an expected_match_id present in the corpus")
-    index = build(args.method, args.corpus_config)
+    if args.search_config:
+        from topic_search import SearchPipeline
+        index = SearchPipeline.from_config(args.search_config)
+    else:
+        index = build(args.method, args.corpus_config)
     ranks = []
     for query in queries:
-        hits = index.search(query["query"], max(args.cutoffs))
+        if args.search_config:
+            hits = [(hit["id"], hit["score"]) for hit in index.search(query["query"], top_k=max(args.cutoffs))["hits"]]
+        else:
+            hits = index.search(query["query"], max(args.cutoffs))
         ranks.append(next((rank for rank,(doc_id,_) in enumerate(hits,1) if doc_id == query["expected_match_id"]),None))
-    result = {"method":args.method,"queries":len(queries),"metrics":metrics(ranks,args.cutoffs),
+    result = {"method":args.method,"search_config":args.search_config,"queries":len(queries),"metrics":metrics(ranks,args.cutoffs),
               "scope":"One known relevant document per query; not duplicate classification or threshold calibration"}
     if args.output:
         path = ROOT / args.output
