@@ -1,0 +1,6 @@
+{
+  "rrf_k": 60,
+  "candidate_depth": 50,
+  "weights": [1.0, 1.0],
+  "tie_break": "document_id_ascending"
+}

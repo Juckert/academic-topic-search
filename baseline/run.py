@@ -4,7 +4,7 @@ from baseline.io import ROOT, read_json
 from baseline.search import BM25
 from topic_search.corpus import load_corpus
 
-METHODS = ("bm25", "dense")
+METHODS = ("bm25", "dense", "hybrid")
 
 def build(method, corpus_config="configs/corpus-example.json"):
     corpus = load_corpus(read_json(ROOT / corpus_config), ROOT)
@@ -15,6 +15,9 @@ def build(method, corpus_config="configs/corpus-example.json"):
     if method == "dense":
         from baseline.dense import DenseSearch
         return DenseSearch(documents, read_json(ROOT / "configs/dense-e5.json"))
+    if method == "hybrid":
+        from baseline.hybrid import HybridSearch
+        return HybridSearch(documents, bm25, read_json(ROOT / "configs/dense-e5.json"), read_json(ROOT / "configs/hybrid-rrf.json"))
     raise ValueError("Unsupported method in this branch")
 
 def main():
