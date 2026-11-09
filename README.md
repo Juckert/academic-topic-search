@@ -46,4 +46,17 @@ python -m baseline.evaluate --method bm25 --queries data/queries.json --output r
 при неразмеченных документах в выдаче метрики не вычисляются.
 Разбиение данных, разметку и пороги предстоит согласовать на реальном корпусе.
 
-Эта ветка: **baseline (BM25)**.
+## Нейронные модели
+
+```powershell
+python -m pip install -r requirements-dense-lock.txt
+python -m baseline.download_model
+python -m baseline.run --method dense --query "Поиск похожих тем"
+```
+
+Для CUDA используйте отдельное окружение и `requirements-cuda.txt` вместо CPU lock.
+Устройство задаётся в `configs/dense-e5.json`: `cpu`, `cuda:0` или `auto`.
+Скачивание весов нужно один раз; дальнейший поиск выполняется локально.
+Работа CUDA требует проверки на целевом ПК, здесь доступен CPU.
+
+Эта ветка: **dense (BM25 + отдельный E5)**.
