@@ -3,7 +3,7 @@
   "info": {
     "title": "Academic Topic Search API",
     "version": "1.0.0",
-    "description": "Proposed HTTP contract for the student interface."
+    "description": "Proposed JSON request, response and error fields for the student interface."
   },
   "servers": [
     {
@@ -15,7 +15,7 @@
     "/filters": {
       "get": {
         "operationId": "getSearchFilters",
-        "summary": "Available corpus filters and score scale",
+        "summary": "Available filters and response metadata",
         "responses": {
           "200": {
             "description": "Available filters",
@@ -65,8 +65,8 @@
     "/search": {
       "post": {
         "operationId": "searchTopics",
-        "summary": "Retrieve a bounded pool of ranked topics",
-        "description": "Trim text fields, convert an empty annotation to null, join title and annotation with two newlines. Metadata filters precede candidate selection. Server score thresholds are disabled for this endpoint.",
+        "summary": "Search request and matching topics",
+        "description": "Request fields: title, optional annotation and metadata filters. Text fields have no surrounding whitespace; an empty annotation is represented by null.",
         "requestBody": {
           "required": true,
           "content": {
@@ -87,7 +87,7 @@
         },
         "responses": {
           "200": {
-            "description": "Ranked pool or successful empty result",
+            "description": "Matching topics or a successful empty result",
             "content": {
               "application/json": {
                 "schema": {
@@ -507,7 +507,7 @@
           "empty_reason",
           "hits"
         ],
-        "description": "All candidates are returned. candidate_count equals hits.length. IDs are unique and hits are sorted by score descending, then id ascending.",
+        "description": "candidate_count equals hits.length. Topic IDs are unique and hits are ordered by score descending.",
         "allOf": [
           {
             "if": {
