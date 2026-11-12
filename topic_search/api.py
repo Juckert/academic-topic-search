@@ -1,9 +1,8 @@
 """HTTP wrapper over SearchPipeline that implements docs/API_CONTRACT.md.
 
-Run: python -m topic_search.api --config configs/search.json
+The ASGI entry point is topic_search.asgi:app; see docs/DEPLOY.md.
 """
 
-import argparse
 import json
 import logging
 import threading
@@ -212,22 +211,3 @@ def create_app(config_path="configs/search.json", *, device=None, pipeline=None,
         else:
             log.warning("Frontend build not found in %s; only the API is served", dist)
     return app
-
-
-def main(argv=None):
-    import uvicorn
-    parser = argparse.ArgumentParser(description="Serve the topic search HTTP API")
-    parser.add_argument("--config", default="configs/search.json", help="search profile relative to the project root")
-    parser.add_argument("--device", help="override the model device: cpu, cuda:0 or auto")
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--frontend-dist", default=str(ROOT / "frontend" / "dist"),
-                        help="built frontend to serve at /; ignored if it has no index.html")
-    args = parser.parse_args(argv)
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    app = create_app(args.config, device=args.device, frontend_dist=args.frontend_dist)
-    uvicorn.run(app, host=args.host, port=args.port)
-
-
-if __name__ == "__main__":
-    main()

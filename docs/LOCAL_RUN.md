@@ -28,30 +28,20 @@ result = search.search("Поиск похожих тем", top_k=5,
 ## Веб-сервис
 
 HTTP-обёртка `topic_search/api.py` реализует [контракт API](API_CONTRACT.md).
-Зависимости ставятся в `.venv` из `requirements-api.txt`.
+ASGI-приложение — `topic_search.asgi:app`. Запуск на сервере описан в [DEPLOY](DEPLOY.md).
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
-.\.venv\Scripts\python.exe -m topic_search.api --config configs/search.json
+.\.venv\Scripts\python.exe -m scripts.serve               # сборка frontend (Node.js 22.12+) и запуск
+.\.venv\Scripts\python.exe -m scripts.serve --skip-build  # только API или уже собранный dist
 ```
 
 Сервер слушает `http://127.0.0.1:8000`, маршруты — `/api/v1/filters` и
-`/api/v1/search`. Профиль должен иметь `threshold: null`. Если корпус или модель
-не загрузились, сервер запускается, пишет причину в лог и отвечает 503.
+`/api/v1/search`. Профиль должен иметь `threshold: null`.
 `dataset_id` и `dataset_version` берутся из конфигурации корпуса,
 `pipeline_version` — из поля профиля или из метода (`bm25`, `hybrid+rerank`).
-
-Проверка вместе с интерфейсом, один процесс (нужен Node.js 22.12+):
-
-```powershell
-.\scripts\serve.ps1                      # сборка frontend в режиме API и запуск
-.\scripts\serve.ps1 -SkipBuild           # только API или уже собранный dist
-.\scripts\serve.ps1 -Config configs/search-hybrid.json
-```
-
-Интерфейс и API открываются на `http://127.0.0.1:8000`. Собранный
-`frontend/dist` раздаётся автоматически, если он есть. Для разработки интерфейса
+Собранный `frontend/dist` раздаётся на `/`, если он есть. Для разработки интерфейса
 запустите API отдельно, а в `frontend` — `npm run dev` с `VITE_SEARCH_MODE=api`
 в `.env.local`; Vite перенаправит `/api` на порт 8000.
 

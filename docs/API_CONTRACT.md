@@ -1,6 +1,6 @@
 # API поиска учебных тем
 
-Статус — контракт HTTP-обёртки над SearchPipeline. Реализация — topic_search/api.py, запуск описан в [LOCAL_RUN](LOCAL_RUN.md).
+Статус — контракт HTTP-обёртки над SearchPipeline. Реализация — topic_search/api.py, запуск описан в [DEPLOY](DEPLOY.md) и [LOCAL_RUN](LOCAL_RUN.md).
 
 [Машиночитаемое описание OpenAPI](openapi.json)
 
