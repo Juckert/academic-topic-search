@@ -80,6 +80,19 @@ class PipelineTests(unittest.TestCase):
         config={**self.mapping,"annotation_field":"abstract","include_annotation":True}
         self.assertEqual(from_records(records,config).topics[0].text,"тема\n\nописание")
 
+    def test_annotation_kept_for_display_with_origin(self):
+        records=[{"key":"x","name":"тема","abstract":" описание ","source":"generated"},
+                 {"key":"y","name":"вторая","abstract":"текст"},
+                 {"key":"z","name":"третья","abstract":"  ","source":"original"}]
+        config={**self.mapping,"annotation_field":"abstract","annotation_origin_field":"source"}
+        x,y,z=from_records(records,config).topics
+        self.assertEqual((x.text,x.annotation,x.annotation_origin),("тема","описание","generated"))
+        self.assertEqual((y.annotation,y.annotation_origin),("текст","unknown"))
+        self.assertEqual((z.annotation,z.annotation_origin),(None,"missing"))
+        self.assertEqual(from_records(records,self.mapping).topics[0].annotation_origin,"missing")
+        with self.assertRaisesRegex(ValueError,"origin"):
+            from_records([{**records[0],"source":"invented"}],config)
+
     def test_bad_corpus_and_filters_rejected(self):
         for records in ([self.records[0],self.records[0]],[{"key":"x","name":None}],[]):
             with self.assertRaises(ValueError): from_records(records,self.mapping)

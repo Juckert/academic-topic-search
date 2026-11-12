@@ -1,0 +1,62 @@
+{
+  "dataset_id": "demo-synthetic",
+  "dataset_version": "1",
+  "topics": [
+    {
+      "id": "demo-001",
+      "title": "Влияние налоговой нагрузки на финансовую устойчивость российских банков",
+      "annotation": "Синтетический пример сопоставления налоговой нагрузки и показателей устойчивости банков.",
+      "annotation_origin": "generated",
+      "metadata": { "year": 2026, "department": "Финансы (демо)", "program": null, "work_type": "ВКР", "source_url": null }
+    },
+    {
+      "id": "demo-002",
+      "title": "Влияние цифровизации на устойчивость российских банков",
+      "annotation": "Синтетическое описание исследования цифровых банковских сервисов.",
+      "annotation_origin": "generated",
+      "metadata": { "year": 2025, "department": "Финансы (демо)", "program": null, "work_type": "ВКР", "source_url": null }
+    },
+    {
+      "id": "demo-003",
+      "title": "Поиск похожих тем выпускных квалификационных работ",
+      "annotation": "Синтетический пример сопоставления названий учебных работ.",
+      "annotation_origin": "generated",
+      "metadata": { "year": 2026, "department": "Информатика (демо)", "program": null, "work_type": "ВКР", "source_url": null }
+    },
+    {
+      "id": "demo-004",
+      "title": "Применение машинного обучения для прогноза успеваемости",
+      "annotation": null,
+      "annotation_origin": "missing",
+      "metadata": { "year": 2026, "department": "Информатика (демо)", "program": null, "work_type": "ВКР", "source_url": null }
+    },
+    {
+      "id": "demo-005",
+      "title": "Оценка кредитного риска методами машинного обучения",
+      "annotation": "Синтетический пример прогнозирования кредитного риска.",
+      "annotation_origin": "generated",
+      "metadata": { "year": 2025, "department": "Финансы (демо)", "program": null, "work_type": "ВКР", "source_url": null }
+    },
+    {
+      "id": "demo-006",
+      "title": "Semantic search for academic project topics",
+      "annotation": null,
+      "annotation_origin": "missing",
+      "metadata": { "year": null, "department": null, "program": null, "work_type": null, "source_url": null }
+    },
+    {
+      "id": "demo-007",
+      "title": "Система учёта лабораторного оборудования и планирования технического обслуживания",
+      "annotation": "Синтетический пример информационной системы для лаборатории.",
+      "annotation_origin": "generated",
+      "metadata": { "year": 2024, "department": "Информатика (демо)", "program": null, "work_type": "Курсовая работа", "source_url": null }
+    },
+    {
+      "id": "demo-008",
+      "title": "Финансовая устойчивость предприятий малого бизнеса",
+      "annotation": null,
+      "annotation_origin": "missing",
+      "metadata": { "year": 2024, "department": "Финансы (демо)", "program": null, "work_type": "ВКР", "source_url": null }
+    }
+  ]
+}

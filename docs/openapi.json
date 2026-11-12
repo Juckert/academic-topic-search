@@ -1,0 +1,738 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Academic Topic Search API",
+    "version": "1.0.0",
+    "description": "Proposed HTTP contract for the student interface."
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "security": [],
+  "paths": {
+    "/filters": {
+      "get": {
+        "operationId": "getSearchFilters",
+        "summary": "Available corpus filters and score scale",
+        "responses": {
+          "200": {
+            "description": "Available filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterOptions"
+                },
+                "example": {
+                  "api_version": "1.0",
+                  "dataset_id": "academic-topics",
+                  "dataset_version": "corpus-v1",
+                  "corpus_size": 500,
+                  "departments": [
+                    "Финансы"
+                  ],
+                  "years": [
+                    2026
+                  ],
+                  "score_type": "bm25",
+                  "candidate_limit": 50
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Поиск временно недоступен.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "api_version": "1.0",
+                  "error": {
+                    "code": "search_unavailable",
+                    "message": "Поиск временно недоступен.",
+                    "field": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search": {
+      "post": {
+        "operationId": "searchTopics",
+        "summary": "Retrieve a bounded pool of ranked topics",
+        "description": "Trim text fields, convert an empty annotation to null, join title and annotation with two newlines. Metadata filters precede candidate selection. Server score thresholds are disabled for this endpoint.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              },
+              "example": {
+                "title": "Оценка устойчивости банков",
+                "annotation": null,
+                "filters": {
+                  "department": null,
+                  "year": 2026
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ranked pool or successful empty result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                },
+                "examples": {
+                  "results": {
+                    "value": {
+                      "api_version": "1.0",
+                      "search_id": "search-example",
+                      "query": {
+                        "title": "Оценка устойчивости банков",
+                        "annotation": null,
+                        "filters": {
+                          "department": null,
+                          "year": 2026
+                        }
+                      },
+                      "method": "bm25",
+                      "reranker_enabled": false,
+                      "score_type": "bm25",
+                      "dataset_id": "academic-topics",
+                      "dataset_version": "corpus-v1",
+                      "pipeline_version": "bm25-v1",
+                      "corpus_size": 500,
+                      "eligible_documents": 34,
+                      "candidate_limit": 50,
+                      "candidate_count": 1,
+                      "status": "results",
+                      "empty_reason": null,
+                      "hits": [
+                        {
+                          "id": "topic-example",
+                          "title": "Исследование финансовой устойчивости банков",
+                          "annotation": "Пример описания задачи исследования.",
+                          "annotation_origin": "generated",
+                          "metadata": {
+                            "year": 2026,
+                            "department": "Финансы",
+                            "program": null,
+                            "work_type": "ВКР",
+                            "source_url": null
+                          },
+                          "score": 12.5,
+                          "score_type": "bm25",
+                          "retrieval_score": 12.5,
+                          "retrieval_score_type": "bm25"
+                        }
+                      ]
+                    }
+                  },
+                  "empty": {
+                    "value": {
+                      "api_version": "1.0",
+                      "search_id": "search-empty-example",
+                      "query": {
+                        "title": "Оценка устойчивости банков",
+                        "annotation": null,
+                        "filters": {
+                          "department": null,
+                          "year": 2026
+                        }
+                      },
+                      "method": "bm25",
+                      "reranker_enabled": false,
+                      "score_type": "bm25",
+                      "dataset_id": "academic-topics",
+                      "dataset_version": "corpus-v1",
+                      "pipeline_version": "bm25-v1",
+                      "corpus_size": 500,
+                      "eligible_documents": 0,
+                      "candidate_limit": 50,
+                      "candidate_count": 0,
+                      "status": "empty",
+                      "empty_reason": "filters_or_exclusions",
+                      "hits": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "api_version": "1.0",
+                  "error": {
+                    "code": "invalid_request",
+                    "message": "Проверьте длину аннотации.",
+                    "field": "annotation"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Поиск временно недоступен.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "api_version": "1.0",
+                  "error": {
+                    "code": "search_unavailable",
+                    "message": "Поиск временно недоступен.",
+                    "field": null
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Не удалось выполнить поиск.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "api_version": "1.0",
+                  "error": {
+                    "code": "internal_error",
+                    "message": "Не удалось выполнить поиск.",
+                    "field": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ScoreType": {
+        "type": "string",
+        "enum": [
+          "bm25",
+          "cosine",
+          "rrf",
+          "reranker_logit"
+        ]
+      },
+      "SearchFilters": {
+        "type": "object",
+        "properties": {
+          "department": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "minLength": 1
+          },
+          "year": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1900,
+            "maximum": 2200
+          }
+        },
+        "required": [
+          "department",
+          "year"
+        ],
+        "additionalProperties": false
+      },
+      "SearchRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1
+          },
+          "annotation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 3498
+          },
+          "filters": {
+            "$ref": "#/components/schemas/SearchFilters"
+          }
+        },
+        "required": [
+          "title",
+          "annotation",
+          "filters"
+        ],
+        "additionalProperties": false
+      },
+      "TopicMetadata": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1900,
+            "maximum": 2200
+          },
+          "department": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300
+          },
+          "program": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300
+          },
+          "work_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "source_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 2048,
+            "description": "Absolute HTTP(S) URL without credentials, or null."
+          }
+        },
+        "required": [
+          "year",
+          "department",
+          "program",
+          "work_type",
+          "source_url"
+        ]
+      },
+      "SearchHit": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1
+          },
+          "annotation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 12000
+          },
+          "annotation_origin": {
+            "type": "string",
+            "enum": [
+              "original",
+              "generated",
+              "unknown",
+              "missing"
+            ]
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/TopicMetadata"
+          },
+          "score": {
+            "type": "number"
+          },
+          "score_type": {
+            "$ref": "#/components/schemas/ScoreType"
+          },
+          "retrieval_score": {
+            "type": "number"
+          },
+          "retrieval_score_type": {
+            "type": "string",
+            "enum": [
+              "bm25",
+              "cosine",
+              "rrf"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "annotation",
+          "annotation_origin",
+          "metadata",
+          "score",
+          "score_type",
+          "retrieval_score",
+          "retrieval_score_type"
+        ]
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "api_version": {
+            "const": "1.0"
+          },
+          "search_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "query": {
+            "$ref": "#/components/schemas/SearchRequest"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "bm25",
+              "dense",
+              "hybrid"
+            ]
+          },
+          "reranker_enabled": {
+            "type": "boolean"
+          },
+          "score_type": {
+            "$ref": "#/components/schemas/ScoreType"
+          },
+          "dataset_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "dataset_version": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "pipeline_version": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "corpus_size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "eligible_documents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "candidate_limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "candidate_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "results",
+              "empty"
+            ]
+          },
+          "empty_reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              null,
+              "filters_or_exclusions",
+              "no_candidates"
+            ]
+          },
+          "hits": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            }
+          }
+        },
+        "required": [
+          "api_version",
+          "search_id",
+          "query",
+          "method",
+          "reranker_enabled",
+          "score_type",
+          "dataset_id",
+          "dataset_version",
+          "pipeline_version",
+          "corpus_size",
+          "eligible_documents",
+          "candidate_limit",
+          "candidate_count",
+          "status",
+          "empty_reason",
+          "hits"
+        ],
+        "description": "All candidates are returned. candidate_count equals hits.length. IDs are unique and hits are sorted by score descending, then id ascending.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "results"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "empty_reason": {
+                  "type": "null"
+                },
+                "hits": {
+                  "minItems": 1
+                },
+                "candidate_count": {
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "empty"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "empty_reason": {
+                  "enum": [
+                    "filters_or_exclusions",
+                    "no_candidates"
+                  ]
+                },
+                "hits": {
+                  "maxItems": 0
+                },
+                "candidate_count": {
+                  "const": 0
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "const": "bm25"
+                },
+                "reranker_enabled": {
+                  "const": false
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "score_type": {
+                  "const": "bm25"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "const": "dense"
+                },
+                "reranker_enabled": {
+                  "const": false
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "score_type": {
+                  "const": "cosine"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "method": {
+                  "const": "hybrid"
+                },
+                "reranker_enabled": {
+                  "const": false
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "score_type": {
+                  "const": "rrf"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "reranker_enabled": {
+                  "const": true
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "score_type": {
+                  "const": "reranker_logit"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FilterOptions": {
+        "type": "object",
+        "properties": {
+          "api_version": {
+            "const": "1.0"
+          },
+          "dataset_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "dataset_version": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "corpus_size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "departments": {
+            "type": "array",
+            "maxItems": 2000,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "maxLength": 300,
+              "minLength": 1
+            }
+          },
+          "years": {
+            "type": "array",
+            "maxItems": 301,
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "minimum": 1900,
+              "maximum": 2200
+            }
+          },
+          "score_type": {
+            "$ref": "#/components/schemas/ScoreType"
+          },
+          "candidate_limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        },
+        "required": [
+          "api_version",
+          "dataset_id",
+          "dataset_version",
+          "corpus_size",
+          "departments",
+          "years",
+          "score_type",
+          "candidate_limit"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "api_version": {
+            "const": "1.0"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "invalid_request",
+                  "search_unavailable",
+                  "internal_error"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "maxLength": 300,
+                "minLength": 1
+              },
+              "field": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "field"
+            ]
+          }
+        },
+        "required": [
+          "api_version",
+          "error"
+        ]
+      }
+    }
+  }
+}

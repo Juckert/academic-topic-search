@@ -6,6 +6,8 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
+ANNOTATION_ORIGINS = ("original", "generated", "unknown", "missing")
+
 
 @dataclass(frozen=True)
 class Topic:
@@ -13,6 +15,8 @@ class Topic:
     title: str
     text: str
     metadata: dict
+    annotation: str | None = None
+    annotation_origin: str = "missing"
 
 
 @dataclass(frozen=True)
@@ -56,20 +60,30 @@ def from_records(records, config):
         seen.add(doc_id)
         title = title.strip()
         text = title
-        if config.get("include_annotation", False):
-            if not config.get("annotation_field"):
-                raise ValueError("annotation_field required when include_annotation=true")
+        # The annotation is read for display whenever annotation_field is set;
+        # include_annotation only controls whether it is indexed.
+        annotation, origin = None, "missing"
+        if config.get("include_annotation", False) and not config.get("annotation_field"):
+            raise ValueError("annotation_field required when include_annotation=true")
+        if config.get("annotation_field"):
             annotation = row.get(config["annotation_field"])
             if annotation is not None and not isinstance(annotation, str):
                 raise ValueError(f"Record {number}: annotation must be a string or null")
-            if annotation and annotation.strip():
-                text += "\n\n" + annotation.strip()
+            annotation = annotation.strip() if annotation and annotation.strip() else None
+        if annotation is not None:
+            origin = row.get(config["annotation_origin_field"]) if config.get("annotation_origin_field") else None
+            if origin in (None, "", "missing"):
+                origin = "unknown"
+            if origin not in ANNOTATION_ORIGINS:
+                raise ValueError(f"Record {number}: annotation origin must be one of {', '.join(ANNOTATION_ORIGINS)}")
+            if config.get("include_annotation", False):
+                text += "\n\n" + annotation
         metadata = {name:row.get(source) for name,source in metadata_fields.items()}
         if any(v is not None and type(v) not in (str,int,float,bool) for v in metadata.values()):
             raise ValueError(f"Record {number}: metadata values must be scalar or null")
         if any(type(v) is float and not math.isfinite(v) for v in metadata.values()):
             raise ValueError(f"Record {number}: metadata numbers must be finite")
-        topics.append(Topic(doc_id, title, text, metadata))
+        topics.append(Topic(doc_id, title, text, metadata, annotation, origin))
     if not topics:
         raise ValueError("No records remain after corpus filtering")
     return Corpus(tuple(topics), tuple(metadata_fields), len(records), excluded)
