@@ -1,0 +1,4 @@
+# HTTP API over SearchPipeline (topic_search.api). httpx2 is needed only for tests.
+fastapi==0.162.5
+uvicorn==0.54.0
+httpx2==2.16.0
