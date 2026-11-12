@@ -3,6 +3,7 @@
   "id_field": "id",
   "title_field": "title",
   "annotation_field": "annotation",
+  "annotation_origin_field": "annotation_origin",
   "include_annotation": false,
   "record_filter": {},
   "metadata_fields": {
