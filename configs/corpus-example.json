@@ -1,5 +1,7 @@
 {
   "path": "data/topics.json",
+  "dataset_id": "local-topics",
+  "dataset_version": "1",
   "id_field": "id",
   "title_field": "title",
   "annotation_field": "annotation",

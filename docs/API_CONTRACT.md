@@ -1,6 +1,6 @@
 # API поиска учебных тем
 
-Статус — предлагаемый контракт для реализации HTTP-обёртки над SearchPipeline.
+Статус — контракт HTTP-обёртки над SearchPipeline. Реализация — topic_search/api.py, запуск описан в [LOCAL_RUN](LOCAL_RUN.md).
 
 [Машиночитаемое описание OpenAPI](openapi.json)
 
